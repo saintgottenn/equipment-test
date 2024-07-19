@@ -1,0 +1,37 @@
+name: equipment
+recipe: laravel
+config:
+  webroot: public
+  via: nginx
+  php: '8.2'
+  database: mysql:8.0
+services:
+  appserver:
+    type: php:8.2
+    via: nginx
+    webroot: public
+    build_as_root:
+      - chown -R www-data:www-data /app/storage/app/public
+      - chmod -R 755 /app/storage/app/public
+  database:
+    type: mysql:8.0
+    portforward: true
+    creds:
+      user: myapp
+      password: myapp
+      database: myapp
+  phpmyadmin:
+    type: phpmyadmin
+    hosts:
+      - database
+tooling:
+  php:
+    service: appserver
+  composer:
+    service: appserver
+  mysql:
+    service: database
+  artisan:
+    service: appserver
+  phpmyadmin:
+    service: phpmyadmin
