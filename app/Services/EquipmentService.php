@@ -6,9 +6,8 @@ namespace App\Services;
 use App\Http\Resources\EquipmentResource;
 use App\Models\Equipment;
 use App\Models\EquipmentType;
-use Exception;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 
 class EquipmentService
 {
@@ -23,7 +22,11 @@ class EquipmentService
         foreach ($data as $index => $item) {
             $validator = Validator::make($item, [
                 'equipment_type_id' => ['required', 'integer', 'exists:equipment_types,id'],
-                'serial_number' => ['required', 'string', 'unique:equipment,serial_number'],
+                'serial_number' => [
+                    'required',
+                    'string',
+                    Rule::unique('equipment')->where('equipment_type_id', $item['equipment_type_id']),
+                ],
                 'desc' => ['nullable', 'string'],
             ]);
 

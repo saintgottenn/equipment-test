@@ -4,15 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Filters\EquipmentFilter;
-use App\Http\Requests\Equipment\StoreRequest;
+use App\Http\Requests\Equipment\IndexRequest;
 use App\Http\Requests\Equipment\UpdateRequest;
 use App\Http\Resources\EquipmentCollection;
 use App\Http\Resources\EquipmentResource;
 use App\Models\Equipment;
 use App\Services\EquipmentService;
-use App\Services\ResponseService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class EquipmentController extends Controller
 {
@@ -24,84 +23,64 @@ class EquipmentController extends Controller
 
     /**
      * Display a listing of the resource.
-     * @param Request $request
+     * @param IndexRequest $request
      * @param EquipmentFilter $filter
-     * @return JsonResponse
+     * @return EquipmentCollection
      */
-    public function index(Request $request, EquipmentFilter $filter): JsonResponse
+    public function index(IndexRequest $request, EquipmentFilter $filter): EquipmentCollection
     {
         $limit = $request->get('limit', config('constants.equipment.pagination_limit'));
         $equipments = Equipment::filter($filter)->latest()->paginate($limit);
 
-        return ResponseService::success(new EquipmentCollection($equipments));
+        return new EquipmentCollection($equipments);
     }
 
     /**
      * Store a newly created resource in storage.
      * @param Request $request
-     * @return JsonResponse
+     * @return array|array[]
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request): array
     {
-        $validated = $request->all();
+        $queryParams = $request->all();
 
-        $result = $this->equipmentService->createMultiple($validated);
-
-        return ResponseService::success($result);
+        return $this->equipmentService->createMultiple($queryParams);
     }
 
     /**
      * Display the specified resource.
-     * @param string $id
-     * @return JsonResponse
+     * @param Equipment $equipment
+     * @return EquipmentResource
      */
-    public function show(string $id): JsonResponse
+    public function show(Equipment $equipment): EquipmentResource
     {
-        $equipment = Equipment::find($id);
-
-        if(!$equipment) {
-            return ResponseService::notFound(message: 'Оборудование по такому ID не найдено');
-        }
-
-        return ResponseService::success((EquipmentResource::make($equipment)));
+        return EquipmentResource::make($equipment);
     }
 
     /**
      * Update the specified resource in storage.
      * @param UpdateRequest $request
-     * @param string $id
-     * @return JsonResponse
+     * @param Equipment $equipment
+     * @return EquipmentResource
      */
-    public function update(UpdateRequest $request, string $id): JsonResponse
+    public function update(UpdateRequest $request, Equipment $equipment): EquipmentResource
     {
-        $equipment = Equipment::find($id);
-
-        if(!$equipment) {
-            return ResponseService::notFound(message: 'Оборудование по такому ID не найдено');
-        }
-
         $validated = $request->validated();
 
         $equipment->update($validated);
 
-        return ResponseService::success(EquipmentResource::make($equipment));
+        return EquipmentResource::make($equipment);
     }
 
     /**
      * Remove the specified resource from storage.
-     * @param string $id
-     * @return JsonResponse
+     * @param Equipment $equipment
+     * @return Response
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(Equipment $equipment): Response
     {
-        $equipment = Equipment::find($id);
-
-        if(!$equipment) {
-            return ResponseService::notFound(message: 'Оборудование по такому ID не найдено');
-        }
-
         $equipment->delete();
 
-        return ResponseService::success();
+        return response()->noContent();
     }
 }

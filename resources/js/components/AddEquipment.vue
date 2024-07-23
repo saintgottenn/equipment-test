@@ -16,7 +16,7 @@
                     </div>
 
                     <div>
-                        <label :for="'serial_number_' + index" class="block mb-2">Serial Numbers (one per line)</label>
+                        <label :for="'serial_number_' + index" class="block mb-2">Serial Number</label>
                         <Field :name="'serial_number_' + index" as="textarea" v-model="form.serial_number" rows="5" class="w-full px-4 py-2 border rounded-lg" :class="{ 'border-red-500': errors['serial_number_' + index] }" />
                         <ErrorMessage :name="'serial_number_' + index" class="text-red-500 text-sm mt-1" />
                     </div>
@@ -92,10 +92,10 @@ export default {
                 }));
 
                 const response = await axios.post('/api/equipment', formsData);
-
-                const { data } = response.data;
+                const data = response.data;
                 const errors = data.errors || {};
                 const success = data.success || [];
+
 
                 if (success.length > 0) {
                     alert(`Successfully added ${success.length} equipment(s)`);

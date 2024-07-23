@@ -18,10 +18,10 @@ class EquipmentFilter extends QueryFilter
     }
 
     /**
-     * @param string $id
+     * @param int $id
      * @return void
      */
-    public function equipment_type_id(string $id): void
+    public function equipment_type_id(int $id): void
     {
         $this->builder->where('equipment_type_id', $id);
     }
